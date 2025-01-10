@@ -8,7 +8,7 @@ app.jinja_env.globals.update(min=min)
 
 
 def load_laptimes():
-    with open('laptimes.json', 'r') as file:
+    with open('C:\\Users\\simra\\PycharmProjects\\SimRacingOS\\laptimes.json', 'r') as file:
         return json.load(file)
 
 
@@ -36,8 +36,12 @@ def process_leaderboard_data(data):
                     'best_splits': [],
                     'best_speeds': {'value': 0, 'user': None},
                     'best_brake': {'value': float('inf'), 'user': None, 'is_infinite': True},
+                    'best_longest_time': {'value': 0, 'user': None},
+                    'best_longest_distance': {'value': 0, 'user': None},
+                    'best_highest_angle': {'value': 0, 'user': None},
+                    'best_total_dist': {'value': 0, 'user': None},
                     'participants': [],
-                    'all_runs': []  # Add this line
+                    'all_runs': []
                 }
 
     # Process data
@@ -51,13 +55,14 @@ def process_leaderboard_data(data):
                 run_with_user = run.copy()
                 run_with_user['user'] = user
                 leaderboard[task]['all_runs'].append(run_with_user)
+
                 if 'laptime' in run:
                     if run['laptime'] < leaderboard[task]['best_laptime']['value']:
                         leaderboard[task]['best_laptime'] = {
                             'value': run['laptime'],
                             'user': user
                         }
-                # Best speeds (if available)
+
                 if 'speeds' in run:
                     max_speed = max(run['speeds'])
                     if max_speed > leaderboard[task]['best_speeds']['value']:
@@ -66,7 +71,6 @@ def process_leaderboard_data(data):
                             'user': user
                         }
 
-                # Best brake distance (if available)
                 if 'brake_distances' in run:
                     min_brake = min(run['brake_distances'])
                     if min_brake < leaderboard[task]['best_brake']['value']:
@@ -75,7 +79,59 @@ def process_leaderboard_data(data):
                             'user': user,
                             'is_infinite': False
                         }
-        # Sort all runs by laptime
+
+                # New logic for Übersteuern and Driften
+                if task == "Übersteuern":
+                    if run['longest_time'] > leaderboard[task]['best_longest_time']['value']:
+                        leaderboard[task]['best_longest_time'] = {
+                            'value': run['longest_time'],
+                            'user': user
+                        }
+
+                    if run['longest_distance'] > leaderboard[task]['best_longest_distance']['value']:
+                        leaderboard[task]['best_longest_distance'] = {
+                            'value': run['longest_distance'],
+                            'user': user
+                        }
+
+                    if run['highest_angle'] > leaderboard[task]['best_highest_angle']['value']:
+                        leaderboard[task]['best_highest_angle'] = {
+                            'value': run['highest_angle'],
+                            'user': user
+                        }
+
+                if task == "Driften":
+                    if run['laptime'] < leaderboard[task]['best_laptime']['value']:
+                        leaderboard[task]['best_laptime'] = {
+                            'value': run['laptime'],
+                            'user': user
+                        }
+
+                    if run['longest_time'] > leaderboard[task]['best_longest_time']['value']:
+                        leaderboard[task]['best_longest_time'] = {
+                            'value': run['longest_time'],
+                            'user': user
+                        }
+
+                    if run['longest_distance'] > leaderboard[task]['best_longest_distance']['value']:
+                        leaderboard[task]['best_longest_distance'] = {
+                            'value': run['longest_distance'],
+                            'user': user
+                        }
+
+                    if run['highest_angle'] > leaderboard[task]['best_highest_angle']['value']:
+                        leaderboard[task]['best_highest_angle'] = {
+                            'value': run['highest_angle'],
+                            'user': user
+                        }
+
+                    if run['total_dist'] > leaderboard[task]['best_total_dist']['value']:
+                        leaderboard[task]['best_total_dist'] = {
+                            'value': run['total_dist'],
+                            'user': user
+                        }
+
+    # Sort all runs by laptime
     for task in leaderboard:
         leaderboard[task]['all_runs'].sort(key=lambda x: x['laptime'])
 
@@ -90,4 +146,4 @@ def index():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host="0.0.0.0")

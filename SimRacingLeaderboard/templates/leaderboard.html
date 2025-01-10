@@ -118,79 +118,138 @@
     <h1>BMW TalentFactory Sim Racing Leaderboard</h1>
 
     {% for task, stats in leaderboard.items() %}
-    <div class="task-section">
-        <h2 class="task-title">{{ task }}</h2>
+<div class="task-section">
+    <h2 class="task-title">{{ task }}</h2>
 
-        <div class="stats-grid">
-            <div class="stat-card">
-                <h3>Best Laptime</h3>
-                <p>
-                    <span class="highlight">{{ stats.best_laptime.value|format_laptime }}</span>
-                    by {{ stats.best_laptime.user }}
-                </p>
-            </div>
-
-            {% if stats.best_speeds.user %}
-            <div class="stat-card">
-                <h3>Top Speed</h3>
-                <p>
-                    <span class="highlight">{{ "%.2f"|format(stats.best_speeds.value) }} km/h</span>
-                    by {{ stats.best_speeds.user }}
-                </p>
-            </div>
-            {% endif %}
-
-            {% if stats.best_brake.user and not stats.best_brake.is_infinite %}
-            <div class="stat-card">
-                <h3>Best Brake Distance</h3>
-                <p>
-                    <span class="highlight">{{ "%.2f"|format(stats.best_brake.value) }}m</span>
-                    by {{ stats.best_brake.user }}
-                </p>
-            </div>
-            {% endif %}
-
+    <div class="stats-grid">
+        {% if task != "Übersteuern" %}
+        <div class="stat-card">
+            <h3>Best Laptime</h3>
+            <p>
+                <span class="highlight">{{ stats.best_laptime.value|format_laptime }}</span>
+                by {{ stats.best_laptime.user }}
+            </p>
         </div>
+        {% endif %}
 
-        <div class="participants">
-            <strong>Participants:</strong> {{ stats.participants|join(', ') }}
+        {% if task == "Übersteuern" %}
+        <div class="stat-card">
+            <h3>Longest Drift Time</h3>
+            <p>
+                <span class="highlight">{{ stats.best_longest_time.value }}s</span>
+                by {{ stats.best_longest_time.user }}
+            </p>
         </div>
-        <button class="view-all-btn" onclick="toggleResults(this)">View all results</button>
-
-        <div class="all-results">
-            <table class="results-table">
-                <thead>
-                <tr>
-                    <th>User</th>
-                    <th>Laptime</th>
-                    {% if stats.all_runs[0].get('speeds') %}
-                    <th>Max Speed</th>
-                    {% endif %}
-                    {% if stats.all_runs[0].get('brake_distances') %}
-                    <th>Min Brake Distance</th>
-                    {% endif %}
-                </tr>
-                </thead>
-                <tbody>
-                {% for run in stats.all_runs %}
-                <tr>
-                    <td>{{ run.user }}</td>
-                    <td>{{ run.laptime|format_laptime }}</td>
-                    {% if run.get('speeds') %}
-                    <td>{{ "%.2f"|format(max(run.speeds)) }} km/h</td>
-                    {% endif %}
-                    {% if run.get('brake_distances') %}
-                    <td>{{ "%.2f"|format(min(run.brake_distances)) }}m</td>
-                    {% endif %}
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-
+        <div class="stat-card">
+            <h3>Longest Drift Distance</h3>
+            <p>
+                <span class="highlight">{{ "%.2f"|format(stats.best_longest_distance.value) }}m</span>
+                by {{ stats.best_longest_distance.user }}
+            </p>
         </div>
+        <div class="stat-card">
+            <h3>Highest Angle</h3>
+            <p>
+                <span class="highlight">{{ "%.2f"|format(stats.best_highest_angle.value) }}°</span>
+                by {{ stats.best_highest_angle.user }}
+            </p>
+        </div>
+        {% endif %}
+
+        {% if task == "Driften" %}
+        <div class="stat-card">
+            <h3>Longest Drift Time</h3>
+            <p>
+                <span class="highlight">{{ stats.best_longest_time.value }}s</span>
+                by {{ stats.best_longest_time.user }}
+            </p>
+        </div>
+        <div class="stat-card">
+            <h3>Longest Drift Distance</h3>
+            <p>
+                <span class="highlight">{{ "%.2f"|format(stats.best_longest_distance.value) }}m</span>
+                by {{ stats.best_longest_distance.user }}
+            </p>
+        </div>
+        <div class="stat-card">
+            <h3>Highest Angle</h3>
+            <p>
+                <span class="highlight">{{ "%.2f"|format(stats.best_highest_angle.value) }}°</span>
+                by {{ stats.best_highest_angle.user }}
+            </p>
+        </div>
+        <div class="stat-card">
+            <h3>Highest Total Drift Distance</h3>
+            <p>
+                <span class="highlight">{{ "%.2f"|format(stats.best_total_dist.value) }}m</span>
+                by {{ stats.best_total_dist.user }}
+            </p>
+        </div>
+        {% endif %}
 
     </div>
-    {% endfor %}
+
+    <div class="participants">
+        <strong>Participants:</strong> {{ stats.participants|join(', ') }}
+    </div>
+    <button class="view-all-btn" onclick="toggleResults(this)">View all results</button>
+
+    <div class="all-results">
+        <table class="results-table">
+            <thead>
+            <tr>
+                <th>User</th>
+                <th>Laptime</th>
+                {% if stats.all_runs[0].get('speeds') %}
+                <th>Max Speed</th>
+                {% endif %}
+                {% if stats.all_runs[0].get('brake_distances') %}
+                <th>Min Brake Distance</th>
+                {% endif %}
+                {% if task == "Übersteuern" %}
+                <th>Longest Drift Time</th>
+                <th>Longest Drift Distance</th>
+                <th>Highest Angle</th>
+                {% endif %}
+                {% if task == "Driften" %}
+                <th>Longest Drift Time</th>
+                <th>Longest Drift Distance</th>
+                <th>Highest Angle</th>
+                <th>Total Drift Distance</th>
+                {% endif %}
+            </tr>
+            </thead>
+            <tbody>
+            {% for run in stats.all_runs %}
+            <tr>
+                <td>{{ run.user }}</td>
+                <td>{{ run.laptime|format_laptime }}</td>
+                {% if run.get('speeds') %}
+                <td>{{ "%.2f"|format(max(run.speeds)) }} km/h</td>
+                {% endif %}
+                {% if run.get('brake_distances') %}
+                <td>{{ "%.2f"|format(min(run.brake_distances)) }}m</td>
+                {% endif %}
+                {% if task == "Übersteuern" %}
+                <td>{{ run.longest_time }}s</td>
+                <td>{{ "%.2f"|format(run.longest_distance) }}m</td>
+                <td>{{ "%.2f"|format(run.highest_angle) }}°</td>
+                {% endif %}
+                {% if task == "Driften" %}
+                <td>{{ run.longest_time }}s</td>
+                <td>{{ "%.2f"|format(run.longest_distance) }}m</td>
+                <td>{{ "%.2f"|format(run.highest_angle) }}°</td>
+                <td>{{ "%.2f"|format(run.total_dist) }}m</td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+
+</div>
+{% endfor %}
 </div>
 <script>
     function toggleResults(button) {
